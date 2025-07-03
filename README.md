@@ -12,7 +12,7 @@ Alternatively, download and drop the `Expansion-Geolocation.jar` file into `plug
 
 Geolocation provides the following placeholders:
 
-Replace `<identifier>` in `%geolocation_<identifier>%` to use.
+Replace `<identifier>` in `%geolocation_<identifier>%` to use. When data has not yet been fetched, the placeholders will temporarily display `Retrieving...`.
 
 - __county__ Returns the player's country. _Ex: United States_
 - __countryCode__ Returns the player's country code. _Ex: US_

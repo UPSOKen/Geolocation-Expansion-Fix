@@ -2,16 +2,19 @@ package me.itsnathang.placeholders;
 
 import me.clip.placeholderapi.expansion.Cleanable;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 
 public class Geolocation extends PlaceholderExpansion implements Cleanable {
     private final String VERSION = getClass().getPackage().getImplementationVersion();
-    private Map<UUID, LocationInfo> cache = new HashMap<>();
+    private Map<UUID, LocationInfo> cache = new ConcurrentHashMap<>();
+    private Set<UUID> pending = ConcurrentHashMap.newKeySet();
 
     @Override
     public String getAuthor() {
@@ -35,16 +38,29 @@ public class Geolocation extends PlaceholderExpansion implements Cleanable {
 
     @Override
     public String onPlaceholderRequest(Player player, String identifier) {
-        if (cache.containsKey(player.getUniqueId()))
-            return cache.get(player.getUniqueId()).getData(identifier);
+        UUID id = player.getUniqueId();
 
-        InetSocketAddress ip = player.getAddress();
-        LocationInfo info = new LocationInfo(ip);
+        if (cache.containsKey(id))
+            return cache.get(id).getData(identifier);
 
-        if (info.isValid())
-            cache.put(player.getUniqueId(), info);
+        if (!pending.contains(id)) {
+            pending.add(id);
+            InetSocketAddress ip = player.getAddress();
 
-        return info.getData(identifier);
+            Bukkit.getScheduler().runTaskAsynchronously(
+                    Bukkit.getPluginManager().getPlugin("PlaceholderAPI"),
+                    () -> {
+                        LocationInfo info = new LocationInfo(ip);
+
+                        if (info.isValid())
+                            cache.put(id, info);
+
+                        pending.remove(id);
+                    }
+            );
+        }
+
+        return "Retrieving...";
     }
 
     @Override
