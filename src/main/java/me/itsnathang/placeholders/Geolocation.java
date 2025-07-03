@@ -6,16 +6,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 
 public class Geolocation extends PlaceholderExpansion implements Cleanable {
     private final String VERSION = getClass().getPackage().getImplementationVersion();
-    private Map<UUID, LocationInfo> cache = new HashMap<>();
-    private Set<UUID> pending = new HashSet<>();
+    private Map<UUID, LocationInfo> cache = new ConcurrentHashMap<>();
+    private Set<UUID> pending = ConcurrentHashMap.newKeySet();
 
     @Override
     public String getAuthor() {
