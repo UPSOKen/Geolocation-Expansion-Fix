@@ -14,7 +14,7 @@ Geolocation provides the following placeholders:
 
 Replace `<identifier>` in `%geolocation_<identifier>%` to use. When data has not yet been fetched, the placeholders will temporarily display `Retrieving...`.
 
-- __county__ Returns the player's country. _Ex: United States_
+- __country__ Returns the player's country. _Ex: United States_
 - __countryCode__ Returns the player's country code. _Ex: US_
 - __regionName__ Returns the player's region name. _Ex: Virginia_
 - __region__ Returns the player's region code. _Ex: VA_
