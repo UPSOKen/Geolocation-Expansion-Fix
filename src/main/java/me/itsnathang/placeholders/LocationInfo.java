@@ -16,8 +16,16 @@ public class LocationInfo {
         String ip = address.getAddress().getHostAddress();
 
         try {
-            this.data = getJSON(ip);
-        } catch (Exception e) { this.data = null; }
+            JSONObject json = getJSON(ip);
+
+            // ip-api returns {"status":"success", ...} when the lookup succeeds
+            if (json != null && "success".equalsIgnoreCase((String) json.get("status")))
+                this.data = json;
+            else
+                this.data = null;
+        } catch (Exception e) {
+            this.data = null;
+        }
     }
 
     private JSONObject getJSON(String ip) throws Exception {
@@ -43,7 +51,27 @@ public class LocationInfo {
 
     public String getData(String key) {
         if (data == null) return "API Down";
-        return data.containsKey(key) ? data.get(key).toString() : "invalid identifier";
+
+        // ip-api keys are case sensitive while PlaceholderAPI provides
+        // identifiers in lower case, so map the requested identifier to the
+        // correct JSON key
+        String actualKey = mapKey(key);
+
+        return data.containsKey(actualKey)
+                ? data.get(actualKey).toString()
+                : "Invalid Identifier";
+    }
+
+    private String mapKey(String key) {
+        switch (key.toLowerCase()) {
+            case "countrycode":
+                return "countryCode";
+            case "regionname":
+                return "regionName";
+            default:
+                // most keys from ip-api are already lower case
+                return key.toLowerCase();
+        }
     }
 
     public boolean isValid() {
