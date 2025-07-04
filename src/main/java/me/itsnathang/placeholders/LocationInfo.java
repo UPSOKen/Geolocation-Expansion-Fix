@@ -16,8 +16,16 @@ public class LocationInfo {
         String ip = address.getAddress().getHostAddress();
 
         try {
-            this.data = getJSON(ip);
-        } catch (Exception e) { this.data = null; }
+            JSONObject json = getJSON(ip);
+
+            // ip-api returns {"status":"success", ...} when the lookup succeeds
+            if (json != null && "success".equalsIgnoreCase((String) json.get("status")))
+                this.data = json;
+            else
+                this.data = null;
+        } catch (Exception e) {
+            this.data = null;
+        }
     }
 
     private JSONObject getJSON(String ip) throws Exception {
